@@ -1,0 +1,14 @@
+---
+- name: Check if OneAgent is installed
+  ansible.windows.win_stat:
+    path: "{{ oneagent_ctl_bin_path }}"
+  register: _oneagent_ctl_state
+
+- name: Determine version of installed OneAgent
+  ansible.windows.win_command: '"{{ oneagent_ctl_bin_path }}" --version'
+  register: _oneagent_installed_agent_version
+  when: _oneagent_ctl_state.stat.exists
+
+- name: Determine version of new installer
+  ansible.windows.win_command: '"{{ oneagent_installer_path }}" --version --quiet'
+  register: _oneagent_new_agent_version

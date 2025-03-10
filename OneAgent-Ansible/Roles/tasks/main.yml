@@ -1,0 +1,32 @@
+---
+- name: Load variables based on OS
+  ansible.builtin.include_vars: vars/{{ oneagent_system_name }}.yml
+- name: Load messages
+  ansible.builtin.include_vars: vars/messages.yml
+- name: Check passed parameters
+  ansible.builtin.include_tasks: params/params.yml
+- name: Prepare and perform installation
+  block:
+    - name: Provide OneAgent installer
+      ansible.builtin.include_tasks: provide-installer/provide-installer.yml
+      when: oneagent_is_operation_installation
+
+    - name: Gather installers info
+      ansible.builtin.include_tasks: gather-info/gather-info.yml
+      when: oneagent_is_operation_installation
+
+    - name: Apply OneAgent configuration
+      ansible.builtin.include_tasks: config/config.yml
+      when: oneagent_is_operation_configuration
+
+    - name: Install OneAgent
+      ansible.builtin.include_tasks: install/install.yml
+      when: oneagent_is_operation_installation
+  always:
+    - name: Cleanup
+      ansible.builtin.include_tasks: cleanup/cleanup.yml
+      when: oneagent_is_operation_installation and not (oneagent_preserve_installer | bool)
+
+- name: Uninstall OneAgent
+  ansible.builtin.include_tasks: uninstall/uninstall.yml
+  when: oneagent_is_operation_uninstall

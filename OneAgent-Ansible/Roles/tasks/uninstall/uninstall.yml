@@ -1,0 +1,3 @@
+---
+- name: Uninstall OneAgent
+  ansible.builtin.include_tasks: tasks/uninstall/uninstall-{{ oneagent_system_family }}.yml
